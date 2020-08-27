@@ -1,3 +1,4 @@
+
 from kafka import KafkaConsumer
 from json import loads
 
