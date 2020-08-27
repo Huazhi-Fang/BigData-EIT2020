@@ -5,7 +5,8 @@ from kafka import KafkaProducer
 
 #Kafa server running at localhost:9093
 producer = KafkaProducer(bootstrap_servers=['localhost:9093'],
-                     	value_serializer=lambda x: dumps(x).encode('utf-8'))
+                     	value_serializer=lambda x: dumps(x).encode('utf-8')
+)
 
 #send messages into the topic 'bdworld'
 with open('./Shakespeare.txt', 'r') as f:
