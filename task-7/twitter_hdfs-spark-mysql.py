@@ -18,6 +18,6 @@ df_selected = twitterData.select("id", "source", "favorited", "text",  \
                         	col("user.followers_count").alias("user_followers_count"), \
                         	"in_reply_to_screen_name")
 
-mysql_url = "jdbc:mysql://192.168.56.101:3306/bigdata2020?user=test4&password=Abcd1234!"
+mysql_url = "jdbc:mysql://192.168.56.101:3306/bigdata2020?user=[user_name]&password=[password]"
 
 df_selected.write.jdbc(mysql_url, table="flumeTwitter", mode="append")
