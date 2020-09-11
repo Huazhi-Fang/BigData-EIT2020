@@ -48,5 +48,6 @@ lines.map(lambda l: l.lower())          	\
  	.foreachRDD(lambda l: transform(l))
 
 ssc.start()
+
 ssc.awaitTermination()
 
