@@ -1,0 +1,24 @@
+# Step 1: at Hive, create a staging table 'emp' and load mock data from csv file:
+
+CREATE TABLE emp (id STRING, first_name STRING, last_name STRING, email STRING, gender STRING)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ‘,’
+STORED AS TEXTFILE
+TBLPROPERTIES ("skip.header.line.count"="1");;
+
+LOAD DATA [LOCAL] INPATH ‘file:///home/huazhi/hive/MOCK_DATA.csv’ OVERWRITE INTO TABLE emp;
+
+
+# Step 2: at HBASE, create a hbase tabel 'emp_hbase'
+CREATE ‘emp_hbase’, ‘personaldetails’
+
+# Step 3: at Hive, create the hive-hbase link table 'emp_hive_hbase'
+CREATE TABLE emp_hive_hbase (id INT, first_name STRING, last_name STRING, email STRING, gender STRING)
+STORED BY 'org.apache.hadoop.hive.hbase.HBaseStorageHandler'
+WITH SERDEPROPERTIES ("hbase.columns.mapping"=":key,personaldetails: first_name,personaldetails:last_name,personaldetails:email,personaldetails:gender")
+TBLPROPERTIES("hbase.table.name"="emp_hbase");
+
+# Step 4: at Hive, copy data from the staging table into the link table
+INSERT INTO emp_hive_hbase SELECT * FROM emp;
+
+# Step 5: at HBase, scan the HBase table 'emp_hbase' which was updated automatically
+SCAN emp_hbase
