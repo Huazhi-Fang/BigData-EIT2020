@@ -21,6 +21,22 @@ ssc = StreamingContext(sc,10)
 ss = SparkSession.builder.getOrCreate()
 ss.sparkContext.setLogLevel('WARN')
 
+def saveToHBase(df):
+    catalog = ''.join("""{
+        "table":{"namespace":"default", "name":"tableMJ"},\
+        "rowkey":"key",\
+        "columns":{\
+          "album_id":{"cf":"rowkey", "col":"key", "type":"string"},\
+          "album_name":{"cf":"album", "col":"album_name", "type":"string"},\
+          "album_href":{"cf":"album", "col":"album_href", "type":"string"},\
+          "artists_id":{"cf":"artists", "col":"artists_id", "type":"string"},\
+          "artists_name":{"cf":"artists", "col":"artists_name", "type":"string"}\
+        }\
+      }""".split())
+
+    df.write.options(catalog=catalog, newtable=5).mode("append").format("org.apache.spark.sql.execution.datasources.hbase").save()
+
+
 def transform(rdd):
     if not rdd.isEmpty():
         global ss
@@ -35,6 +51,9 @@ def transform(rdd):
                          col("artists.name").alias("artists_name"))
         df5 = df5.distinct()
         df5.show()
+
+        saveToHBase(df5)
+
 
 ks = KafkaUtils.createDirectStream(ssc, ['bdworld'], {'metadata.broker.list' : 'sandbox-hdp:6667'}, valueDecoder=lambda s: json.loads(s.decode('utf-8')))
 
